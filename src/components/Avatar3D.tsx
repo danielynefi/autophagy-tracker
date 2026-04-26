@@ -60,6 +60,12 @@ export function Avatar3D({ fastingHours, phaseColor, phaseId, isRunning, gender 
         shoulderBones.current.push(child)
       }
 
+      // Fix T-pose: rotate upper arms down to natural A-pose
+      const isLeftArm = name.includes('left') && name.includes('arm') && !name.includes('fore') && !name.includes('hand') && !name.includes('shoulder')
+      const isRightArm = name.includes('right') && name.includes('arm') && !name.includes('fore') && !name.includes('hand') && !name.includes('shoulder')
+      if (isLeftArm) child.rotation.z = 0.55
+      if (isRightArm) child.rotation.z = -0.55
+
       const mesh = child as THREE.Mesh
       if (!mesh.isMesh) return
       const mat = new THREE.MeshStandardMaterial({
@@ -137,7 +143,11 @@ export function Avatar3D({ fastingHours, phaseColor, phaseId, isRunning, gender 
       : `/audio/${gender}/idle/idle_${n}.mp3`
     const audio = new Audio(audioPath)
     audioRef.current = audio
-    audio.play().catch(() => {})
+    audio.play().catch(() => {
+      const fallback = new Audio(`/audio/${gender}/idle/idle_1.mp3`)
+      audioRef.current = fallback
+      fallback.play().catch(() => {})
+    })
   }
 
   return (
