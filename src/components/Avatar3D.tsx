@@ -11,7 +11,7 @@ interface Avatar3DProps {
   gender: 'male' | 'female'
 }
 
-export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar3DProps) {
+export function Avatar3D({ fastingHours, phaseColor, phaseId, isRunning, gender }: Avatar3DProps) {
   const group = useRef<THREE.Group>(null)
   const modelPath = gender === 'female' ? '/avatar-female.glb' : '/avatar-male.glb'
   const { scene, animations } = useGLTF(modelPath)
@@ -94,13 +94,15 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
   const handleClick = (e: { stopPropagation: () => void }) => {
     e.stopPropagation()
     revealed.current = !revealed.current
-    if (isRunning) return
     if (audioRef.current) {
       audioRef.current.pause()
       audioRef.current.currentTime = 0
     }
     const n = Math.ceil(Math.random() * 10)
-    const audio = new Audio(`/audio/${gender}/idle/idle_${n}.mp3`)
+    const audioPath = isRunning
+      ? `/audio/${gender}/${phaseId}/${phaseId}_${n}.mp3`
+      : `/audio/${gender}/idle/idle_${n}.mp3`
+    const audio = new Audio(audioPath)
     audioRef.current = audio
     audio.play().catch(() => {})
   }
