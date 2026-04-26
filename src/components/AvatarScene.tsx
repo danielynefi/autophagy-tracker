@@ -8,6 +8,7 @@ interface AvatarSceneProps {
   phase: Phase
   fastingHours: number
   isRunning: boolean
+  gender: 'male' | 'female'
   onCanvasDoubleClick: () => void
 }
 
@@ -15,7 +16,7 @@ function LoadingFallback() {
   return null
 }
 
-export function AvatarScene({ phase, fastingHours, isRunning, onCanvasDoubleClick }: AvatarSceneProps) {
+export function AvatarScene({ phase, fastingHours, isRunning, gender, onCanvasDoubleClick }: AvatarSceneProps) {
   const lastTap = useRef(0)
 
   const handleTouchEnd = () => {
@@ -45,6 +46,7 @@ export function AvatarScene({ phase, fastingHours, isRunning, onCanvasDoubleClic
           fastingHours={fastingHours}
           phaseColor={phase.color}
           isRunning={isRunning}
+          gender={gender}
         />
         <ContactShadows
           position={[0, -1.0, 0]}

@@ -10,6 +10,7 @@ import { PhaseTimeline } from './components/PhaseTimeline'
 import { MilestoneCard } from './components/MilestoneCard'
 import { AchievementToast } from './components/AchievementToast'
 import { HistoryPanel } from './components/HistoryPanel'
+import { SettingsPanel } from './components/SettingsPanel'
 
 export function App() {
   const { isRunning, elapsedSeconds, fastingHours, phase, phaseProgress, startFast, stopFast } = useFasting()
@@ -18,6 +19,15 @@ export function App() {
 
   const [overlayOpen, setOverlayOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [gender, setGender] = useState<'male' | 'female'>(() =>
+    (localStorage.getItem('avatar-gender') as 'male' | 'female') || 'male'
+  )
+
+  const handleGenderChange = (g: 'male' | 'female') => {
+    setGender(g)
+    localStorage.setItem('avatar-gender', g)
+  }
 
   const handleAvatarClick = useCallback(() => {
     if (isRunning) setOverlayOpen(true)
@@ -37,9 +47,9 @@ export function App() {
     >
       {/* Ambient glow */}
       <motion.div
-        className="absolute top-0 left-1/2 -translate-x-1/2 rounded-full pointer-events-none"
-        style={{ width: '520px', height: '520px', background: phase.glowColor, filter: 'blur(60px)', opacity: 0.3 }}
-        animate={{ opacity: [0.22, 0.58, 0.22] }}
+        className="absolute left-1/2 -translate-x-1/2 rounded-full pointer-events-none"
+        style={{ top: '110px', width: '300px', height: '300px', background: phase.glowColor, filter: 'blur(70px)', opacity: 0.3 }}
+        animate={{ opacity: [0.2, 0.5, 0.2] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
       />
 
@@ -51,13 +61,25 @@ export function App() {
           </h1>
           <p className="text-xs opacity-40 text-white">Tu cuerpo como nunca lo habías visto</p>
         </div>
-        <button
-          onClick={() => setHistoryOpen(true)}
-          className="w-10 h-10 rounded-full flex items-center justify-center text-sm transition-opacity hover:opacity-80"
-          style={{ background: `${phase.color}15`, border: `1px solid ${phase.color}30`, color: phase.color }}
-        >
-          📊
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity hover:opacity-80"
+            style={{ background: `${phase.color}15`, border: `1px solid ${phase.color}30`, color: phase.color }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+          <button
+            onClick={() => setHistoryOpen(true)}
+            className="w-10 h-10 rounded-full flex items-center justify-center text-sm transition-opacity hover:opacity-80"
+            style={{ background: `${phase.color}15`, border: `1px solid ${phase.color}30`, color: phase.color }}
+          >
+            📊
+          </button>
+        </div>
       </div>
 
       {/* 3D Avatar */}
@@ -66,6 +88,7 @@ export function App() {
           phase={phase}
           fastingHours={fastingHours}
           isRunning={isRunning}
+          gender={gender}
           onCanvasDoubleClick={handleAvatarClick}
         />
         {isRunning && (
@@ -149,6 +172,15 @@ export function App() {
         history={history}
         stats={stats}
         unlockedIds={unlockedIds}
+      />
+
+      {/* Settings panel */}
+      <SettingsPanel
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        gender={gender}
+        onGenderChange={handleGenderChange}
+        phase={phase}
       />
     </div>
   )
