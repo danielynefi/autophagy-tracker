@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useFasting } from './hooks/useFasting'
 import { useHistory } from './hooks/useHistory'
 import { useMilestones } from './hooks/useMilestones'
+import { useProfile } from './hooks/useProfile'
 import { AvatarScene } from './components/AvatarScene'
 import { FastingTimer } from './components/FastingTimer'
 import { BodyZoomOverlay } from './components/BodyZoomOverlay'
@@ -17,9 +18,15 @@ export function App() {
   const { history, stats, unlockedAchievements, unlockedIds, newAchievement, saveFast, dismissAchievement } = useHistory()
   const { activeMilestone, dismissMilestone } = useMilestones(fastingHours, isRunning)
 
+  const { profile } = useProfile()
+
   const [overlayOpen, setOverlayOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+
+  useEffect(() => {
+    if (!profile) setHistoryOpen(true)
+  }, [])
   const [gender, setGender] = useState<'male' | 'female'>(() =>
     (localStorage.getItem('avatar-gender') as 'male' | 'female') || 'male'
   )
@@ -172,6 +179,7 @@ export function App() {
         history={history}
         stats={stats}
         unlockedIds={unlockedIds}
+        gender={gender}
       />
 
       {/* Settings panel */}
