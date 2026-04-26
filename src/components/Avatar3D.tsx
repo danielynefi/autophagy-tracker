@@ -6,11 +6,12 @@ import * as THREE from 'three'
 interface Avatar3DProps {
   fastingHours: number
   phaseColor: string
+  phaseId: string
   isRunning: boolean
   gender: 'male' | 'female'
 }
 
-export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar3DProps) {
+export function Avatar3D({ fastingHours, phaseColor, phaseId, isRunning, gender }: Avatar3DProps) {
   const group = useRef<THREE.Group>(null)
   const modelPath = gender === 'female' ? '/avatar-female.glb' : '/avatar-male.glb'
   const { scene, animations } = useGLTF(modelPath)
@@ -126,9 +127,20 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
     }
   })
 
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
   const handleClick = (e: { stopPropagation: () => void }) => {
     e.stopPropagation()
     revealed.current = !revealed.current
+
+    // Stop any playing audio then play phase audio
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
+    const audio = new Audio(`/audio/${phaseId}.mp3`)
+    audioRef.current = audio
+    audio.play().catch(() => {})
   }
 
   return (

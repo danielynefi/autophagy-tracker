@@ -50,6 +50,7 @@ export function AvatarScene({ phase, fastingHours, isRunning, gender, onCanvasDo
         <Avatar3D
           fastingHours={fastingHours}
           phaseColor={phase.color}
+          phaseId={phase.id}
           isRunning={isRunning}
           gender={gender}
         />
