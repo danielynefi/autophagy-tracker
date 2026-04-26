@@ -37,9 +37,9 @@ export function App() {
     >
       {/* Ambient glow */}
       <motion.div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full pointer-events-none"
-        style={{ background: phase.glowColor, filter: 'blur(80px)', opacity: 0.15 }}
-        animate={{ opacity: [0.1, 0.22, 0.1] }}
+        className="absolute top-0 left-1/2 -translate-x-1/2 rounded-full pointer-events-none"
+        style={{ width: '520px', height: '520px', background: phase.glowColor, filter: 'blur(60px)', opacity: 0.3 }}
+        animate={{ opacity: [0.22, 0.58, 0.22] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
       />
 
