@@ -12,7 +12,6 @@ interface Avatar3DProps {
 
 export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar3DProps) {
   const group = useRef<THREE.Group>(null)
-  const bodyRef = useRef<THREE.Group>(null)
   const modelPath = gender === 'female' ? '/avatar-female.glb' : '/avatar-male.glb'
   const { scene, animations } = useGLTF(modelPath)
   const { actions, names } = useAnimations(animations, group)
@@ -23,11 +22,17 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
   const bodyScale = useRef(1.55)
   const revealed = useRef(false)
 
+  // Bones for targeted belly scaling
+  const hipsBone = useRef<THREE.Object3D | null>(null)
+  const counterBones = useRef<THREE.Object3D[]>([]) // legs + shoulders (to cancel arm/leg widening)
+
   useEffect(() => {
     skinMats.current = []
     animStarted.current = false
+    hipsBone.current = null
+    counterBones.current = []
 
-    // Auto-scale: apply scale directly to scene to avoid re-renders
+    // Auto-scale scene to fit ~2 units tall
     scene.scale.set(1, 1, 1)
     scene.position.set(0, 0, 0)
     const box = new THREE.Box3().setFromObject(scene)
@@ -42,6 +47,21 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
     }
 
     scene.traverse((child) => {
+      const name = child.name.toLowerCase()
+
+      // Find hips bone (root of torso + legs)
+      if (!hipsBone.current && (name.includes('hips') || name === 'pelvis') && !name.includes('leg')) {
+        hipsBone.current = child
+      }
+
+      // Counter-scale bones: upper legs and shoulders (to keep limbs normal width)
+      if (
+        name.includes('upleg') || name.includes('upper_leg') ||
+        name.includes('thigh') || name.includes('shoulder')
+      ) {
+        counterBones.current.push(child)
+      }
+
       const mesh = child as THREE.Mesh
       if (!mesh.isMesh) return
       const mat = new THREE.MeshStandardMaterial({
@@ -87,12 +107,19 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
       m.wireframe = false
     })
 
+    // Belly scale: widen hips/torso, counter-scale limbs to keep arms/legs normal
     const targetBodyScale = THREE.MathUtils.lerp(1.55, 1.0, Math.min(fastingHours / 12, 1))
     bodyScale.current = THREE.MathUtils.lerp(bodyScale.current, targetBodyScale, 0.02)
-    if (bodyRef.current) {
-      bodyRef.current.scale.x = bodyScale.current
-      bodyRef.current.scale.z = bodyScale.current
+    const s = bodyScale.current
+
+    if (hipsBone.current) {
+      hipsBone.current.scale.x = s
+      hipsBone.current.scale.z = s
     }
+    counterBones.current.forEach(bone => {
+      bone.scale.x = 1 / s
+      bone.scale.z = 1 / s
+    })
 
     if (group.current && isRunning) {
       group.current.rotation.y = Math.sin(t * 0.2) * 0.08
@@ -106,9 +133,7 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
 
   return (
     <group ref={group} onClick={handleClick} position={[0, 0, 0]}>
-      <group ref={bodyRef}>
-        <primitive object={scene} />
-      </group>
+      <primitive object={scene} />
     </group>
   )
 }
