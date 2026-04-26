@@ -20,20 +20,20 @@ export function Avatar3D({ fastingHours, phaseColor, phaseId, isRunning, gender 
   const skinMats = useRef<THREE.MeshStandardMaterial[]>([])
   const clothOpacity = useRef(1)
   const animStarted = useRef(false)
-  const bodyScale = useRef(1.55)
+  const bodyScale = useRef(1.3)
   const revealed = useRef(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  // Bones for targeted belly scaling
-  const hipsBone = useRef<THREE.Object3D | null>(null)
-  const counterBones = useRef<THREE.Object3D[]>([]) // legs + shoulders (to cancel arm/leg widening)
+  // Only the single Spine bone (belly/lower torso) — legs untouched, arms counter-scaled at shoulder
+  const spineBone = useRef<THREE.Object3D | null>(null)
+  const shoulderBones = useRef<THREE.Object3D[]>([])
 
   useEffect(() => {
     skinMats.current = []
     animStarted.current = false
-    hipsBone.current = null
-    counterBones.current = []
+    spineBone.current = null
+    shoulderBones.current = []
 
-    // Auto-scale scene to fit ~2 units tall
     scene.scale.set(1, 1, 1)
     scene.position.set(0, 0, 0)
     const box = new THREE.Box3().setFromObject(scene)
@@ -50,17 +50,14 @@ export function Avatar3D({ fastingHours, phaseColor, phaseId, isRunning, gender 
     scene.traverse((child) => {
       const name = child.name.toLowerCase()
 
-      // Find hips bone (root of torso + legs)
-      if (!hipsBone.current && (name.includes('hips') || name === 'pelvis') && !name.includes('leg')) {
-        hipsBone.current = child
+      // Only the first Spine bone (belly) — NOT Spine1/Spine2 to avoid cumulative scaling
+      if (!spineBone.current && name.endsWith('spine') && !name.includes('spine1') && !name.includes('spine2')) {
+        spineBone.current = child
       }
 
-      // Counter-scale bones: upper legs and shoulders (to keep limbs normal width)
-      if (
-        name.includes('upleg') || name.includes('upper_leg') ||
-        name.includes('thigh') || name.includes('shoulder')
-      ) {
-        counterBones.current.push(child)
+      // Counter-scale only shoulders so arms stay normal
+      if (name.includes('shoulder')) {
+        shoulderBones.current.push(child)
       }
 
       const mesh = child as THREE.Mesh
@@ -108,16 +105,16 @@ export function Avatar3D({ fastingHours, phaseColor, phaseId, isRunning, gender 
       m.wireframe = false
     })
 
-    // Belly scale: widen hips/torso, counter-scale limbs to keep arms/legs normal
-    const targetBodyScale = THREE.MathUtils.lerp(1.55, 1.0, Math.min(fastingHours / 12, 1))
+    // Scale only Spine bone (belly) — legs unaffected, shoulders counter-scaled
+    const targetBodyScale = THREE.MathUtils.lerp(1.3, 1.0, Math.min(fastingHours / 12, 1))
     bodyScale.current = THREE.MathUtils.lerp(bodyScale.current, targetBodyScale, 0.02)
     const s = bodyScale.current
 
-    if (hipsBone.current) {
-      hipsBone.current.scale.x = s
-      hipsBone.current.scale.z = s
+    if (spineBone.current) {
+      spineBone.current.scale.x = s
+      spineBone.current.scale.z = s
     }
-    counterBones.current.forEach(bone => {
+    shoulderBones.current.forEach(bone => {
       bone.scale.x = 1 / s
       bone.scale.z = 1 / s
     })
@@ -127,13 +124,9 @@ export function Avatar3D({ fastingHours, phaseColor, phaseId, isRunning, gender 
     }
   })
 
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-
   const handleClick = (e: { stopPropagation: () => void }) => {
     e.stopPropagation()
     revealed.current = !revealed.current
-
-    // Stop any playing audio then play phase audio
     if (audioRef.current) {
       audioRef.current.pause()
       audioRef.current.currentTime = 0
