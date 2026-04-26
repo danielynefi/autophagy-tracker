@@ -7,15 +7,18 @@ interface PhaseTimelineProps {
 
 export function PhaseTimeline({ currentPhase, fastingHours }: PhaseTimelineProps) {
   return (
-    <div className="w-full px-2">
-      <div className="flex items-end gap-1 justify-between">
+    <div
+      className="w-full px-2"
+      style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' } as React.CSSProperties}
+    >
+      <div className="flex items-end gap-5" style={{ minWidth: 'max-content', paddingBottom: '2px' }}>
         {PHASES.map((phase) => {
           const isCurrent = phase.id === currentPhase.id
           const isPast = fastingHours >= phase.maxHours
           const opacity = isPast ? 0.75 : isCurrent ? 1 : 0.55
 
           return (
-            <div key={phase.id} className="flex flex-col items-center gap-1 flex-1 min-w-0">
+            <div key={phase.id} className="flex flex-col items-center gap-1" style={{ minWidth: '56px' }}>
               {/* Dot */}
               <div
                 className="w-2.5 h-2.5 rounded-full transition-all duration-500"
@@ -27,7 +30,7 @@ export function PhaseTimeline({ currentPhase, fastingHours }: PhaseTimelineProps
               />
               {/* Label */}
               <span
-                className="text-[11px] text-center leading-tight w-full break-words"
+                className="text-[11px] text-center leading-tight"
                 style={{ color: isCurrent || isPast ? phase.color : 'rgba(255,255,255,0.55)', opacity }}
               >
                 {phase.nameShort}
