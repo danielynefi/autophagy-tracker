@@ -20,7 +20,7 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
   const skinMats = useRef<THREE.MeshStandardMaterial[]>([])
   const clothOpacity = useRef(1)
   const animStarted = useRef(false)
-  const bodyScale = useRef(1.25)
+  const bodyScale = useRef(1.55)
   const revealed = useRef(false)
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
       m.wireframe = false
     })
 
-    const targetBodyScale = THREE.MathUtils.lerp(1.25, 1.0, Math.min(fastingHours / 12, 1))
+    const targetBodyScale = THREE.MathUtils.lerp(1.55, 1.0, Math.min(fastingHours / 12, 1))
     bodyScale.current = THREE.MathUtils.lerp(bodyScale.current, targetBodyScale, 0.02)
     if (bodyRef.current) {
       bodyRef.current.scale.x = bodyScale.current
