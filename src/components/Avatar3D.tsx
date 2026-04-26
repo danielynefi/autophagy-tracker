@@ -133,8 +133,8 @@ export function Avatar3D({ fastingHours, phaseColor, phaseId, isRunning, gender 
     }
     const n = Math.ceil(Math.random() * 10)
     const audioPath = isRunning
-      ? `/audio/${phaseId}/${phaseId}_${n}.mp3`
-      : `/audio/idle/idle_${n}.mp3`
+      ? `/audio/${gender}/${phaseId}/${phaseId}_${n}.mp3`
+      : `/audio/${gender}/idle/idle_${n}.mp3`
     const audio = new Audio(audioPath)
     audioRef.current = audio
     audio.play().catch(() => {})
