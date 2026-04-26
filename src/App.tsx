@@ -4,6 +4,7 @@ import { useFasting } from './hooks/useFasting'
 import { useHistory } from './hooks/useHistory'
 import { useMilestones } from './hooks/useMilestones'
 import { useProfile } from './hooks/useProfile'
+import { PostFastModal } from './components/PostFastModal'
 import { AvatarScene } from './components/AvatarScene'
 import { FastingTimer } from './components/FastingTimer'
 import { BodyZoomOverlay } from './components/BodyZoomOverlay'
@@ -18,11 +19,13 @@ export function App() {
   const { history, stats, unlockedAchievements, unlockedIds, newAchievement, saveFast, dismissAchievement } = useHistory()
   const { activeMilestone, dismissMilestone } = useMilestones(fastingHours, isRunning)
 
-  const { profile } = useProfile()
+  const { profile, adjustGoal } = useProfile()
 
   const [overlayOpen, setOverlayOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [postFastOpen, setPostFastOpen] = useState(false)
+  const [lastFastHours, setLastFastHours] = useState(0)
 
   useEffect(() => {
     if (!profile) setHistoryOpen(true)
@@ -42,7 +45,12 @@ export function App() {
 
   const handleStop = useCallback(() => {
     if (isRunning) {
+      const hours = elapsedSeconds / 3600
       saveFast(new Date(Date.now() - elapsedSeconds * 1000), new Date(), phase.name)
+      if (hours >= 8) {
+        setLastFastHours(hours)
+        setPostFastOpen(true)
+      }
     }
     stopFast()
   }, [isRunning, elapsedSeconds, phase, saveFast, stopFast])
@@ -180,6 +188,14 @@ export function App() {
         stats={stats}
         unlockedIds={unlockedIds}
         gender={gender}
+      />
+
+      {/* Post-fast check-in */}
+      <PostFastModal
+        isOpen={postFastOpen}
+        onClose={() => setPostFastOpen(false)}
+        onAnswer={(delta) => adjustGoal(delta)}
+        phase={phase}
       />
 
       {/* Settings panel */}

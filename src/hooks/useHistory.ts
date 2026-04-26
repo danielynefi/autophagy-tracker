@@ -14,7 +14,11 @@ const ACHIEVEMENTS_KEY = 'autophagy_achievements'
 
 function loadHistory(): FastRecord[] {
   try {
-    return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? '[]')
+    const all: FastRecord[] = JSON.parse(localStorage.getItem(HISTORY_KEY) ?? '[]')
+    const cutoff = Date.now() - 20 * 24 * 3600 * 1000
+    const filtered = all.filter(r => new Date(r.endTime).getTime() >= cutoff)
+    if (filtered.length !== all.length) localStorage.setItem(HISTORY_KEY, JSON.stringify(filtered))
+    return filtered
   } catch {
     return []
   }
