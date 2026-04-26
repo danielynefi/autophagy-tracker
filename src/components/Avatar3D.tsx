@@ -102,11 +102,7 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
     const n = Math.ceil(Math.random() * 10)
     const audio = new Audio(`/audio/${gender}/idle/idle_${n}.mp3`)
     audioRef.current = audio
-    audio.play().catch(() => {
-      const fallback = new Audio(`/audio/${gender}/idle/idle_1.mp3`)
-      audioRef.current = fallback
-      fallback.play().catch(() => {})
-    })
+    audio.play().catch(() => {})
   }
 
   return (
