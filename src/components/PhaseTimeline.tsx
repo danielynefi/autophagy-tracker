@@ -82,22 +82,22 @@ export function PhaseTimeline({ currentPhase, fastingHours }: PhaseTimelineProps
         </div>
       </div>
 
-      {/* Left shadow — outside the card border, fades with scroll */}
+      {/* Left shadow */}
       <div style={{
         position: 'absolute', left: 0, top: 0, bottom: 0, width: '52px',
         borderRadius: '16px 0 0 16px',
-        background: 'linear-gradient(to right, #04080f 30%, transparent)',
+        background: 'linear-gradient(to right, rgba(200,210,220,0.18) 0%, transparent 100%)',
         opacity: leftOpacity,
         pointerEvents: 'none',
         transition: 'opacity 0.12s ease',
         zIndex: 2,
       }} />
 
-      {/* Right shadow — outside the card border, disappears at end */}
+      {/* Right shadow */}
       <div style={{
         position: 'absolute', right: 0, top: 0, bottom: 0, width: '52px',
         borderRadius: '0 16px 16px 0',
-        background: 'linear-gradient(to left, #04080f 30%, transparent)',
+        background: 'linear-gradient(to left, rgba(200,210,220,0.18) 0%, transparent 100%)',
         opacity: rightOpacity,
         pointerEvents: 'none',
         transition: 'opacity 0.12s ease',
