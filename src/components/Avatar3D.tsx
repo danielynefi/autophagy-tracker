@@ -138,7 +138,7 @@ export function Avatar3D({ fastingHours, phaseColor, phaseId, isRunning, gender 
       audioRef.current.pause()
       audioRef.current.currentTime = 0
     }
-    const audio = new Audio(`/audio/${phaseId}.mp3`)
+    const audio = new Audio(`/audio/${phaseId}/${phaseId}.mp3`)
     audioRef.current = audio
     audio.play().catch(() => {})
   }
