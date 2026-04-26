@@ -13,7 +13,12 @@ interface AvatarSceneProps {
 }
 
 function LoadingFallback() {
-  return null
+  return (
+    <mesh position={[0, 0, 0]}>
+      <sphereGeometry args={[0.01]} />
+      <meshBasicMaterial transparent opacity={0} />
+    </mesh>
+  )
 }
 
 export function AvatarScene({ phase, fastingHours, isRunning, gender, onCanvasDoubleClick }: AvatarSceneProps) {

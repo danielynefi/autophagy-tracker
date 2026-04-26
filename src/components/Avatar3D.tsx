@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import * as THREE from 'three'
@@ -22,10 +22,23 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
   const animStarted = useRef(false)
   const bodyScale = useRef(1.25)
   const revealed = useRef(false)
+  const [modelScale, setModelScale] = useState(0.012)
+  const [modelYOffset, setModelYOffset] = useState(-1.02)
 
   useEffect(() => {
     skinMats.current = []
     animStarted.current = false
+
+    // Auto-scale: measure bounding box and fit to ~2 units tall
+    const box = new THREE.Box3().setFromObject(scene)
+    const size = box.getSize(new THREE.Vector3())
+    const height = size.y
+    if (height > 0.01) {
+      const scale = 2.0 / height
+      const yMin = box.min.y * scale
+      setModelScale(scale)
+      setModelYOffset(-yMin - 1.0)
+    }
 
     scene.traverse((child) => {
       const mesh = child as THREE.Mesh
@@ -73,7 +86,6 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
       m.wireframe = false
     })
 
-    // Body scale: fat in digestion (0h), slim by autophagy (12h+)
     const targetBodyScale = THREE.MathUtils.lerp(1.25, 1.0, Math.min(fastingHours / 12, 1))
     bodyScale.current = THREE.MathUtils.lerp(bodyScale.current, targetBodyScale, 0.02)
     if (bodyRef.current) {
@@ -94,7 +106,7 @@ export function Avatar3D({ fastingHours, phaseColor, isRunning, gender }: Avatar
   return (
     <group ref={group} onClick={handleClick} position={[0, 0, 0]}>
       <group ref={bodyRef}>
-        <primitive object={scene} scale={0.012} position={[0, -1.02, 0]} />
+        <primitive object={scene} scale={modelScale} position={[0, modelYOffset, 0]} />
       </group>
     </group>
   )
