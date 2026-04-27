@@ -27,9 +27,15 @@ export function App() {
   const [postFastOpen, setPostFastOpen] = useState(false)
   const [lastFastHours, setLastFastHours] = useState(0)
 
-  useEffect(() => {
-    if (!profile) setHistoryOpen(true)
-  }, [])
+  const [tipDismissed, setTipDismissed] = useState(() =>
+    localStorage.getItem('profile-tip-dismissed') === '1'
+  )
+  const showProfileTip = !profile && !tipDismissed
+
+  const dismissTip = () => {
+    localStorage.setItem('profile-tip-dismissed', '1')
+    setTipDismissed(true)
+  }
   const [gender, setGender] = useState<'male' | 'female'>(() =>
     (localStorage.getItem('avatar-gender') as 'male' | 'female') || 'male'
   )
@@ -76,7 +82,38 @@ export function App() {
           </h1>
           <p className="text-xs opacity-40 text-white">Tu cuerpo como nunca lo habías visto</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2" style={{ position: 'relative' }}>
+          {/* Profile tip bubble */}
+          {showProfileTip && (
+            <motion.div
+              initial={{ opacity: 0, y: -8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8 }}
+              style={{
+                position: 'absolute', top: '48px', right: 0, width: '220px',
+                background: 'linear-gradient(135deg, #7C3AED, #4F46E5)',
+                borderRadius: '14px', padding: '12px 14px',
+                boxShadow: '0 8px 32px rgba(124,58,237,0.45)',
+                zIndex: 20,
+              }}
+            >
+              {/* Arrow pointing up-right to the 📊 button */}
+              <div style={{
+                position: 'absolute', top: '-7px', right: '14px',
+                width: 0, height: 0,
+                borderLeft: '7px solid transparent',
+                borderRight: '7px solid transparent',
+                borderBottom: '7px solid #7C3AED',
+              }} />
+              <button
+                onClick={dismissTip}
+                style={{ position: 'absolute', top: '8px', right: '10px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '14px', lineHeight: 1 }}
+              >✕</button>
+              <p style={{ fontSize: '12px', color: 'white', fontFamily: 'Space Grotesk', fontWeight: 600, lineHeight: 1.4, paddingRight: '16px' }}>
+                📊 Registra tus datos para un seguimiento personalizado de tu progreso
+              </p>
+            </motion.div>
+          )}
           <button
             onClick={() => setSettingsOpen(true)}
             className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity hover:opacity-80"
