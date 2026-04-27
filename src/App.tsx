@@ -27,15 +27,9 @@ export function App() {
   const [postFastOpen, setPostFastOpen] = useState(false)
   const [lastFastHours, setLastFastHours] = useState(0)
 
-  const [tipDismissed, setTipDismissed] = useState(() =>
-    localStorage.getItem('profile-tip-dismissed') === '1'
-  )
+  const [tipDismissed, setTipDismissed] = useState(false)
   const showProfileTip = !profile && !tipDismissed
-
-  const dismissTip = () => {
-    localStorage.setItem('profile-tip-dismissed', '1')
-    setTipDismissed(true)
-  }
+  const dismissTip = () => setTipDismissed(true)
   const [gender, setGender] = useState<'male' | 'female'>(() =>
     (localStorage.getItem('avatar-gender') as 'male' | 'female') || 'male'
   )
