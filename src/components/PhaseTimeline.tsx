@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { PHASES, Phase } from '../data/phases'
 
 interface PhaseTimelineProps {
@@ -8,8 +8,17 @@ interface PhaseTimelineProps {
 
 export function PhaseTimeline({ currentPhase, fastingHours }: PhaseTimelineProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const activeRef = useRef<HTMLDivElement>(null)
   const [leftOpacity, setLeftOpacity] = useState(0)
   const [rightOpacity, setRightOpacity] = useState(1)
+
+  useEffect(() => {
+    if (!scrollRef.current || !activeRef.current) return
+    const container = scrollRef.current
+    const active = activeRef.current
+    const targetScroll = active.offsetLeft - container.clientWidth / 2 + active.offsetWidth / 2
+    container.scrollTo({ left: Math.max(targetScroll, 0), behavior: 'smooth' })
+  }, [currentPhase.id])
 
   const handleScroll = () => {
     const el = scrollRef.current
@@ -47,7 +56,7 @@ export function PhaseTimeline({ currentPhase, fastingHours }: PhaseTimelineProps
               const isFuture = !isCurrent && !isPast
 
               return (
-                <div key={phase.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', minWidth: '58px' }}>
+                <div key={phase.id} ref={isCurrent ? activeRef : undefined} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', minWidth: '58px' }}>
                   <div style={{
                     width: isCurrent ? '13px' : '10px',
                     height: isCurrent ? '13px' : '10px',
