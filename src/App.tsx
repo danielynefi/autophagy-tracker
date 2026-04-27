@@ -106,8 +106,8 @@ export function App() {
                 borderBottom: '7px solid #7C3AED',
               }} />
               <button
-                onClick={dismissTip}
-                style={{ position: 'absolute', top: '8px', right: '10px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '14px', lineHeight: 1 }}
+                onClick={(e) => { e.stopPropagation(); dismissTip() }}
+                style={{ position: 'absolute', top: '6px', right: '8px', background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '12px', lineHeight: 1, borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >✕</button>
               <p style={{ fontSize: '12px', color: 'white', fontFamily: 'Space Grotesk', fontWeight: 600, lineHeight: 1.4, paddingRight: '16px' }}>
                 📊 Registra tus datos para un seguimiento personalizado de tu progreso
