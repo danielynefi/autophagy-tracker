@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { formatDuration } from '../data/phases'
 import { Phase } from '../data/phases'
@@ -22,9 +23,21 @@ export function FastingTimer({
   goalHours, goalProgress, remainingSeconds,
   onStart, onStop, onGoalChange,
 }: FastingTimerProps) {
+  const [customMode, setCustomMode] = useState(false)
+  const [customInput, setCustomInput] = useState('')
   const circumference = 2 * Math.PI * 52
   const ringProgress = isRunning ? goalProgress : phaseProgress
   const goalReached = isRunning && remainingSeconds === 0
+  const isCustomGoal = !GOAL_OPTIONS.includes(goalHours)
+
+  const handleCustomConfirm = () => {
+    const h = parseFloat(customInput)
+    if (!isNaN(h) && h >= 1 && h <= 168) {
+      onGoalChange(h)
+    }
+    setCustomMode(false)
+    setCustomInput('')
+  }
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -106,13 +119,13 @@ export function FastingTimer({
           <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontFamily: 'Space Grotesk', letterSpacing: '0.08em', marginBottom: '10px' }}>
             META DE AYUNO
           </p>
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
             {GOAL_OPTIONS.map(h => {
-              const isSelected = goalHours === h
+              const isSelected = goalHours === h && !isCustomGoal
               return (
                 <button
                   key={h}
-                  onClick={() => onGoalChange(h)}
+                  onClick={() => { onGoalChange(h); setCustomMode(false) }}
                   style={{
                     padding: '6px 14px',
                     borderRadius: '20px',
@@ -130,7 +143,74 @@ export function FastingTimer({
                 </button>
               )
             })}
+            {/* Custom button */}
+            <button
+              onClick={() => setCustomMode(m => !m)}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '20px',
+                border: `1px solid ${(customMode || isCustomGoal) ? phase.color : 'rgba(255,255,255,0.12)'}`,
+                background: (customMode || isCustomGoal) ? `${phase.color}20` : 'transparent',
+                color: (customMode || isCustomGoal) ? phase.color : 'rgba(255,255,255,0.35)',
+                fontSize: '13px',
+                fontFamily: 'Space Grotesk',
+                fontWeight: (customMode || isCustomGoal) ? 700 : 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {isCustomGoal && !customMode ? `${goalHours}h ✎` : '✎'}
+            </button>
           </div>
+
+          {/* Custom input */}
+          {customMode && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}
+            >
+              <input
+                type="number"
+                min={1}
+                max={168}
+                placeholder="ej. 36"
+                value={customInput}
+                onChange={e => setCustomInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleCustomConfirm()}
+                autoFocus
+                style={{
+                  width: '80px',
+                  padding: '6px 10px',
+                  borderRadius: '12px',
+                  border: `1px solid ${phase.color}50`,
+                  background: 'rgba(255,255,255,0.06)',
+                  color: 'white',
+                  fontFamily: 'Space Grotesk',
+                  fontSize: '14px',
+                  textAlign: 'center',
+                  outline: 'none',
+                }}
+              />
+              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontFamily: 'Space Grotesk' }}>horas</span>
+              <button
+                onClick={handleCustomConfirm}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '12px',
+                  background: phase.color,
+                  color: '#000',
+                  border: 'none',
+                  fontFamily: 'Space Grotesk',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                }}
+              >
+                OK
+              </button>
+            </motion.div>
+          )}
         </div>
       )}
 
