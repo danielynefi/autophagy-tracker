@@ -11,12 +11,17 @@ export interface FastingState {
 }
 
 const STORAGE_KEY = 'autophagy_fast_start'
+const GOAL_KEY = 'autophagy_goal_hours'
 
 export function useFasting() {
   const [isRunning, setIsRunning] = useState(false)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [startTime, setStartTime] = useState<Date | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [goalHours, setGoalHoursState] = useState<number>(() => {
+    const stored = localStorage.getItem(GOAL_KEY)
+    return stored ? parseFloat(stored) : 16
+  })
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
@@ -57,9 +62,17 @@ export function useFasting() {
     setStartTime(null)
   }, [])
 
+  const setGoalHours = (hours: number) => {
+    localStorage.setItem(GOAL_KEY, hours.toString())
+    setGoalHoursState(hours)
+  }
+
   const fastingHours = elapsedSeconds / 3600
   const phase = getCurrentPhase(fastingHours)
   const phaseProgress = getPhaseProgress(fastingHours, phase)
+  const goalSeconds = goalHours * 3600
+  const remainingSeconds = Math.max(goalSeconds - elapsedSeconds, 0)
+  const goalProgress = Math.min(elapsedSeconds / goalSeconds, 1)
 
   return {
     isRunning,
@@ -68,6 +81,10 @@ export function useFasting() {
     phase,
     phaseProgress,
     startTime,
+    goalHours,
+    goalProgress,
+    remainingSeconds,
+    setGoalHours,
     startFast,
     stopFast,
   }

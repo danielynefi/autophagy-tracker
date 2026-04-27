@@ -15,7 +15,7 @@ import { HistoryPanel } from './components/HistoryPanel'
 import { SettingsPanel } from './components/SettingsPanel'
 
 export function App() {
-  const { isRunning, elapsedSeconds, fastingHours, phase, phaseProgress, startFast, stopFast } = useFasting()
+  const { isRunning, elapsedSeconds, fastingHours, phase, phaseProgress, goalHours, goalProgress, remainingSeconds, setGoalHours, startFast, stopFast } = useFasting()
   const { history, stats, unlockedAchievements, unlockedIds, newAchievement, saveFast, dismissAchievement } = useHistory()
   const { activeMilestone, dismissMilestone } = useMilestones(fastingHours, isRunning)
 
@@ -129,8 +129,12 @@ export function App() {
           elapsedSeconds={elapsedSeconds}
           phase={phase}
           phaseProgress={phaseProgress}
+          goalHours={goalHours}
+          goalProgress={goalProgress}
+          remainingSeconds={remainingSeconds}
           onStart={startFast}
           onStop={handleStop}
+          onGoalChange={setGoalHours}
         />
 
         {isRunning && (
