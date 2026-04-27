@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { generateShareCard, shareOrDownload } from '../utils/shareCard'
 
 interface PostFastModalProps {
   isOpen: boolean
   onClose: () => void
   onAnswer: (delta: number) => void
-  phase: { color: string }
+  phase: { color: string; name: string; emoji: string }
+  elapsedSeconds: number
+  userName: string
 }
 
 const OPTIONS = [
@@ -35,16 +38,36 @@ const OPTIONS = [
   },
 ]
 
-export function PostFastModal({ isOpen, onClose, onAnswer, phase }: PostFastModalProps) {
+export function PostFastModal({ isOpen, onClose, onAnswer, phase, elapsedSeconds, userName }: PostFastModalProps) {
   const [result, setResult] = useState<typeof OPTIONS[0] | null>(null)
+  const [sharing, setSharing] = useState(false)
+  const [shared, setShared] = useState(false)
 
   const handleSelect = (opt: typeof OPTIONS[0]) => {
     setResult(opt)
     onAnswer(opt.delta)
-    setTimeout(() => {
-      setResult(null)
-      onClose()
-    }, 2200)
+  }
+
+  const handleClose = () => {
+    setResult(null)
+    setShared(false)
+    onClose()
+  }
+
+  const handleShare = async () => {
+    setSharing(true)
+    try {
+      const blob = await generateShareCard({
+        elapsedSeconds,
+        phaseName: phase.name,
+        phaseEmoji: phase.emoji,
+        phaseColor: phase.color,
+        userName,
+      })
+      await shareOrDownload(blob)
+      setShared(true)
+    } catch {}
+    setSharing(false)
   }
 
   return (
@@ -111,12 +134,45 @@ export function PostFastModal({ isOpen, onClose, onAnswer, phase }: PostFastModa
                     key="result"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    style={{ textAlign: 'center', padding: '20px 0' }}
+                    style={{ textAlign: 'center', padding: '8px 0' }}
                   >
-                    <p style={{ fontSize: '48px', marginBottom: '12px' }}>{result.emoji}</p>
-                    <p style={{ fontSize: '16px', fontWeight: 600, color: result.msgColor, fontFamily: 'Space Grotesk' }}>
+                    <p style={{ fontSize: '44px', marginBottom: '10px' }}>{result.emoji}</p>
+                    <p style={{ fontSize: '16px', fontWeight: 600, color: result.msgColor, fontFamily: 'Space Grotesk', marginBottom: '24px' }}>
                       {result.msg}
                     </p>
+
+                    {/* Share button */}
+                    <button
+                      onClick={handleShare}
+                      disabled={sharing}
+                      style={{
+                        width: '100%', padding: '15px', borderRadius: '16px', border: 'none',
+                        background: shared
+                          ? 'rgba(16,185,129,0.15)'
+                          : `linear-gradient(135deg, ${phase.color}, ${phase.color}bb)`,
+                        color: shared ? '#10B981' : '#000',
+                        fontFamily: 'Space Grotesk', fontSize: '15px', fontWeight: 700,
+                        cursor: sharing ? 'wait' : 'pointer',
+                        marginBottom: '10px',
+                        opacity: sharing ? 0.7 : 1,
+                        transition: 'all 0.3s ease',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                      }}
+                    >
+                      {sharing ? '⏳ Generando...' : shared ? '✓ ¡Compartido!' : '📲 Compartir mi logro'}
+                    </button>
+
+                    <button
+                      onClick={handleClose}
+                      style={{
+                        width: '100%', padding: '13px', borderRadius: '16px',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: 'transparent', color: 'rgba(255,255,255,0.35)',
+                        fontFamily: 'Space Grotesk', fontSize: '14px', cursor: 'pointer',
+                      }}
+                    >
+                      Cerrar
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>

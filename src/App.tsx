@@ -27,6 +27,8 @@ export function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [postFastOpen, setPostFastOpen] = useState(false)
   const [lastFastHours, setLastFastHours] = useState(0)
+  const [lastFastElapsed, setLastFastElapsed] = useState(0)
+  const [lastFastPhase, setLastFastPhase] = useState(phase)
 
   const [tipDismissed, setTipDismissed] = useState(false)
   const showProfileTip = !profile && !tipDismissed
@@ -58,6 +60,8 @@ export function App() {
       saveFast(new Date(Date.now() - elapsedSeconds * 1000), new Date(), phase.name)
       if (hours >= 8) {
         setLastFastHours(hours)
+        setLastFastElapsed(elapsedSeconds)
+        setLastFastPhase(phase)
         setPostFastOpen(true)
       }
     }
@@ -242,7 +246,9 @@ export function App() {
         isOpen={postFastOpen}
         onClose={() => setPostFastOpen(false)}
         onAnswer={(delta) => adjustGoal(delta)}
-        phase={phase}
+        phase={lastFastPhase}
+        elapsedSeconds={lastFastElapsed}
+        userName={userName}
       />
 
       {/* Settings panel */}
