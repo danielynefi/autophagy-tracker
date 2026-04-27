@@ -174,7 +174,7 @@ export function FastingTimer({
                 type="number"
                 min={1}
                 max={168}
-                placeholder="ej. 36"
+                placeholder=""
                 value={customInput}
                 onChange={e => setCustomInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleCustomConfirm()}
