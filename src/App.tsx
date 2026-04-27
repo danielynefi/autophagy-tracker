@@ -82,38 +82,7 @@ export function App() {
           </h1>
           <p className="text-xs opacity-40 text-white">Tu cuerpo como nunca lo habías visto</p>
         </div>
-        <div className="flex gap-2" style={{ position: 'relative' }}>
-          {/* Profile tip bubble */}
-          {showProfileTip && (
-            <motion.div
-              initial={{ opacity: 0, y: -8, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8 }}
-              style={{
-                position: 'absolute', top: '48px', right: 0, width: '220px',
-                background: 'linear-gradient(135deg, #7C3AED, #4F46E5)',
-                borderRadius: '14px', padding: '12px 14px',
-                boxShadow: '0 8px 32px rgba(124,58,237,0.45)',
-                zIndex: 20,
-              }}
-            >
-              {/* Arrow pointing up-right to the 📊 button */}
-              <div style={{
-                position: 'absolute', top: '-7px', right: '14px',
-                width: 0, height: 0,
-                borderLeft: '7px solid transparent',
-                borderRight: '7px solid transparent',
-                borderBottom: '7px solid #7C3AED',
-              }} />
-              <button
-                onClick={(e) => { e.stopPropagation(); dismissTip() }}
-                style={{ position: 'absolute', top: '6px', right: '8px', background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '12px', lineHeight: 1, borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >✕</button>
-              <p style={{ fontSize: '12px', color: 'white', fontFamily: 'Space Grotesk', fontWeight: 600, lineHeight: 1.4, paddingRight: '16px' }}>
-                📊 Registra tus datos para un seguimiento personalizado de tu progreso
-              </p>
-            </motion.div>
-          )}
+        <div className="flex gap-2">
           <button
             onClick={() => setSettingsOpen(true)}
             className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity hover:opacity-80"
@@ -226,6 +195,36 @@ export function App() {
         unlockedIds={unlockedIds}
         gender={gender}
       />
+
+      {/* Profile tip bubble — fixed so overflow-hidden doesn't block clicks */}
+      {showProfileTip && (
+        <motion.div
+          initial={{ opacity: 0, y: -8, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          style={{
+            position: 'fixed', top: '72px', right: '16px', width: '220px',
+            background: 'linear-gradient(135deg, #7C3AED, #4F46E5)',
+            borderRadius: '14px', padding: '12px 14px',
+            boxShadow: '0 8px 32px rgba(124,58,237,0.45)',
+            zIndex: 100,
+          }}
+        >
+          <div style={{
+            position: 'absolute', top: '-7px', right: '18px',
+            width: 0, height: 0,
+            borderLeft: '7px solid transparent',
+            borderRight: '7px solid transparent',
+            borderBottom: '7px solid #7C3AED',
+          }} />
+          <button
+            onClick={dismissTip}
+            style={{ position: 'absolute', top: '6px', right: '8px', background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '12px', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >✕</button>
+          <p style={{ fontSize: '12px', color: 'white', fontFamily: 'Space Grotesk', fontWeight: 600, lineHeight: 1.4, paddingRight: '16px' }}>
+            📊 Registra tus datos para un seguimiento personalizado de tu progreso
+          </p>
+        </motion.div>
+      )}
 
       {/* Post-fast check-in */}
       <PostFastModal
