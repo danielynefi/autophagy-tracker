@@ -166,16 +166,34 @@ export function HistoryPanel({ isOpen, onClose, history, stats, unlockedIds, gen
 
             {/* HISTORIAL TAB */}
             {tab === 'historial' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+                {/* Big stats: racha + total horas */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div style={{ background: 'linear-gradient(135deg, rgba(255,159,67,0.15), rgba(255,107,53,0.08))', border: '1px solid rgba(255,159,67,0.2)', borderRadius: '20px', padding: '18px', textAlign: 'center' }}>
+                    <p style={{ fontSize: '11px', color: 'rgba(255,159,67,0.7)', fontFamily: 'Space Grotesk', letterSpacing: '0.06em', marginBottom: '6px' }}>RACHA</p>
+                    <p style={{ fontSize: '34px', fontWeight: 800, color: 'white', fontFamily: 'Space Grotesk', lineHeight: 1 }}>{stats.currentStreakDays}</p>
+                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', fontFamily: 'Space Grotesk', marginTop: '4px' }}>días consecutivos</p>
+                  </div>
+                  <div style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(59,130,246,0.08))', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '20px', padding: '18px', textAlign: 'center' }}>
+                    <p style={{ fontSize: '11px', color: 'rgba(0,212,255,0.7)', fontFamily: 'Space Grotesk', letterSpacing: '0.06em', marginBottom: '6px' }}>TOTAL</p>
+                    <p style={{ fontSize: '34px', fontWeight: 800, color: 'white', fontFamily: 'Space Grotesk', lineHeight: 1 }}>{Math.floor(stats.totalHours)}</p>
+                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', fontFamily: 'Space Grotesk', marginTop: '4px' }}>horas acumuladas</p>
+                  </div>
+                </div>
+
+                {/* Small stats: ayunos, récord, esta semana, promedio */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   {[
-                    { label: 'Ayunos', value: stats.totalFasts },
-                    { label: 'Récord', value: formatHours(stats.longestFastHours) },
-                    { label: 'Racha', value: `${stats.currentStreakDays}d` },
-                  ].map((s) => (
-                    <div key={s.label} style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '16px', padding: '12px', textAlign: 'center' }}>
-                      <p style={{ fontSize: '20px', fontWeight: 700, color: 'white', fontFamily: 'Space Grotesk' }}>{s.value}</p>
-                      <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'Space Grotesk' }}>{s.label}</p>
+                    { label: 'Ayunos completados', value: String(stats.totalFasts), icon: '⚡' },
+                    { label: 'Récord personal', value: formatHours(stats.longestFastHours), icon: '🏆' },
+                    { label: 'Esta semana', value: formatHours(stats.thisWeekHours), icon: '📅' },
+                    { label: 'Promedio semanal', value: formatHours(stats.weeklyAvgHours), icon: '📊' },
+                  ].map(s => (
+                    <div key={s.label} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '14px' }}>
+                      <p style={{ fontSize: '18px', marginBottom: '4px' }}>{s.icon}</p>
+                      <p style={{ fontSize: '20px', fontWeight: 700, color: 'white', fontFamily: 'Space Grotesk', lineHeight: 1 }}>{s.value}</p>
+                      <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', fontFamily: 'Space Grotesk', marginTop: '4px' }}>{s.label}</p>
                     </div>
                   ))}
                 </div>

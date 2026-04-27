@@ -12,6 +12,8 @@ export interface AchievementStats {
   longestFastHours: number
   currentStreakDays: number
   totalHours: number
+  weeklyAvgHours: number
+  thisWeekHours: number
 }
 
 export const ACHIEVEMENTS: Achievement[] = [

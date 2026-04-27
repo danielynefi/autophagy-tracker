@@ -37,7 +37,7 @@ function computeStats(history: FastRecord[]): AchievementStats {
   const longestFastHours = history.reduce((max, r) => Math.max(max, r.durationHours), 0)
   const totalHours = history.reduce((sum, r) => sum + r.durationHours, 0)
 
-  // Simple streak: consecutive days with at least one fast
+  // Streak: consecutive days with at least one fast
   let currentStreakDays = 0
   const today = new Date()
   for (let i = 0; i < 365; i++) {
@@ -49,7 +49,23 @@ function computeStats(history: FastRecord[]): AchievementStats {
     else if (i > 0) break
   }
 
-  return { totalFasts, longestFastHours, currentStreakDays, totalHours }
+  // This week (Monday–today)
+  const startOfWeek = new Date(today)
+  startOfWeek.setDate(today.getDate() - ((today.getDay() + 6) % 7))
+  startOfWeek.setHours(0, 0, 0, 0)
+  const thisWeekHours = history
+    .filter(r => new Date(r.endTime) >= startOfWeek)
+    .reduce((sum, r) => sum + r.durationHours, 0)
+
+  // Weekly average over the last 4 weeks
+  const fourWeeksAgo = new Date(today)
+  fourWeeksAgo.setDate(today.getDate() - 28)
+  const recentHours = history
+    .filter(r => new Date(r.endTime) >= fourWeeksAgo)
+    .reduce((sum, r) => sum + r.durationHours, 0)
+  const weeklyAvgHours = recentHours / 4
+
+  return { totalFasts, longestFastHours, currentStreakDays, totalHours, thisWeekHours, weeklyAvgHours }
 }
 
 export function useHistory() {
