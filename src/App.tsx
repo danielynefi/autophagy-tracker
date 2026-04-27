@@ -209,6 +209,7 @@ export function App() {
         stats={stats}
         unlockedIds={unlockedIds}
         gender={gender}
+        userName={userName}
       />
 
       {/* Profile tip bubble — fixed so overflow-hidden doesn't block clicks */}

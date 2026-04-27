@@ -4,6 +4,8 @@ import { FastRecord } from '../hooks/useHistory'
 import { AchievementStats } from '../data/achievements'
 import { AchievementGrid } from './AchievementGrid'
 import { useProfile, calcStats } from '../hooks/useProfile'
+import { PHASES } from '../data/phases'
+import { generateShareCard, shareOrDownload } from '../utils/shareCard'
 
 interface HistoryPanelProps {
   isOpen: boolean
@@ -12,6 +14,7 @@ interface HistoryPanelProps {
   stats: AchievementStats
   unlockedIds: string[]
   gender: 'male' | 'female'
+  userName: string
 }
 
 function formatDate(iso: string) {
@@ -58,8 +61,29 @@ function StatBox({ label, value, sub }: { label: string, value: string, sub?: st
   )
 }
 
-export function HistoryPanel({ isOpen, onClose, history, stats, unlockedIds, gender }: HistoryPanelProps) {
+function getPhaseByName(name: string) {
+  return PHASES.find(p => p.name === name) ?? PHASES[0]
+}
+
+export function HistoryPanel({ isOpen, onClose, history, stats, unlockedIds, gender, userName }: HistoryPanelProps) {
   const [tab, setTab] = useState<'perfil' | 'historial'>('perfil')
+  const [sharingId, setSharingId] = useState<string | null>(null)
+
+  const handleShare = async (record: FastRecord) => {
+    setSharingId(record.id)
+    try {
+      const phase = getPhaseByName(record.phaseReached)
+      const blob = await generateShareCard({
+        elapsedSeconds: Math.round(record.durationHours * 3600),
+        phaseName: phase.name,
+        phaseEmoji: phase.emoji,
+        phaseColor: phase.color,
+        userName,
+      })
+      await shareOrDownload(blob)
+    } catch {}
+    setSharingId(null)
+  }
   const { profile, saveProfile } = useProfile()
 
   const [weight, setWeight] = useState(profile?.weight.toString() ?? '')
@@ -206,15 +230,38 @@ export function HistoryPanel({ isOpen, onClose, history, stats, unlockedIds, gen
                     <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>Aún no has completado ningún ayuno</p>
                   )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {history.map((record) => (
-                      <div key={record.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                        <div>
-                          <p style={{ fontSize: '14px', color: 'white', fontFamily: 'Space Grotesk' }}>{formatDate(record.endTime)}</p>
-                          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontFamily: 'Space Grotesk' }}>{record.phaseReached}</p>
+                    {history.map((record) => {
+                      const phase = getPhaseByName(record.phaseReached)
+                      const isSharing = sharingId === record.id
+                      return (
+                        <div key={record.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderRadius: '14px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${phase.color}18` }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: '14px', color: 'white', fontFamily: 'Space Grotesk' }}>{formatDate(record.endTime)}</p>
+                            <p style={{ fontSize: '12px', fontFamily: 'Space Grotesk', color: phase.color, opacity: 0.75 }}>
+                              {phase.emoji} {record.phaseReached}
+                            </p>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+                            <p style={{ fontSize: '16px', fontWeight: 700, color: 'white', fontFamily: 'Space Grotesk' }}>{formatHours(record.durationHours)}</p>
+                            <button
+                              onClick={() => handleShare(record)}
+                              disabled={isSharing}
+                              title="Compartir logro"
+                              style={{
+                                width: '32px', height: '32px', borderRadius: '10px',
+                                border: `1px solid ${phase.color}35`,
+                                background: `${phase.color}12`,
+                                color: phase.color, cursor: isSharing ? 'wait' : 'pointer',
+                                fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                opacity: isSharing ? 0.5 : 1, transition: 'opacity 0.2s',
+                              }}
+                            >
+                              {isSharing ? '⏳' : '📲'}
+                            </button>
+                          </div>
                         </div>
-                        <p style={{ fontSize: '16px', fontWeight: 700, color: 'white', fontFamily: 'Space Grotesk' }}>{formatHours(record.durationHours)}</p>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               </div>
