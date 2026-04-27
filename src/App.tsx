@@ -72,7 +72,7 @@ export function App() {
       <div className="flex items-center justify-between w-full max-w-sm px-5 pt-10 pb-2 z-10">
         <div>
           <h1 className="text-xl font-bold" style={{ fontFamily: 'Space Grotesk', color: phase.color }}>
-            Autophagy Tracker
+            Autopha
           </h1>
           <p className="text-xs opacity-40 text-white">Tu cuerpo como nunca lo habías visto</p>
         </div>
