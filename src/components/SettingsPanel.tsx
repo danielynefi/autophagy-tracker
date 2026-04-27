@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Phase } from '../data/phases'
 
@@ -7,9 +8,17 @@ interface SettingsPanelProps {
   gender: 'male' | 'female'
   onGenderChange: (gender: 'male' | 'female') => void
   phase: Phase
+  userName: string
+  onUserNameChange: (name: string) => void
 }
 
-export function SettingsPanel({ isOpen, onClose, gender, onGenderChange, phase }: SettingsPanelProps) {
+export function SettingsPanel({ isOpen, onClose, gender, onGenderChange, phase, userName, onUserNameChange }: SettingsPanelProps) {
+  const [inputValue, setInputValue] = useState(userName)
+
+  const handleNameBlur = () => {
+    const trimmed = inputValue.trim()
+    onUserNameChange(trimmed)
+  }
   return (
     <AnimatePresence>
       {isOpen && (
@@ -42,6 +51,34 @@ export function SettingsPanel({ isOpen, onClose, gender, onGenderChange, phase }
               <h2 style={{ color: 'white', fontSize: '18px', fontWeight: 700, fontFamily: 'Space Grotesk', marginBottom: '24px' }}>
                 Ajustes
               </h2>
+
+              {/* Name input */}
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', letterSpacing: '0.08em', fontFamily: 'Space Grotesk', marginBottom: '10px' }}>
+                TU NOMBRE
+              </p>
+              <input
+                type="text"
+                value={inputValue}
+                onChange={e => setInputValue(e.target.value)}
+                onBlur={handleNameBlur}
+                onKeyDown={e => e.key === 'Enter' && handleNameBlur()}
+                placeholder="¿Cómo te llamas?"
+                maxLength={24}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  borderRadius: '14px',
+                  border: `1px solid ${inputValue.trim() ? phase.color + '50' : 'rgba(255,255,255,0.08)'}`,
+                  background: 'rgba(255,255,255,0.05)',
+                  color: 'white',
+                  fontFamily: 'Space Grotesk',
+                  fontSize: '15px',
+                  outline: 'none',
+                  marginBottom: '24px',
+                  boxSizing: 'border-box',
+                  transition: 'border-color 0.2s ease',
+                }}
+              />
 
               {/* Gender selector */}
               <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', letterSpacing: '0.08em', fontFamily: 'Space Grotesk', marginBottom: '12px' }}>

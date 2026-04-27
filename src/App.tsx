@@ -33,10 +33,18 @@ export function App() {
   const [gender, setGender] = useState<'male' | 'female'>(() =>
     (localStorage.getItem('avatar-gender') as 'male' | 'female') || 'male'
   )
+  const [userName, setUserNameState] = useState<string>(() =>
+    localStorage.getItem('autopha-username') || ''
+  )
 
   const handleGenderChange = (g: 'male' | 'female') => {
     setGender(g)
     localStorage.setItem('avatar-gender', g)
+  }
+
+  const handleUserNameChange = (name: string) => {
+    setUserNameState(name)
+    localStorage.setItem('autopha-username', name)
   }
 
   const handleAvatarClick = useCallback(() => {
@@ -74,7 +82,9 @@ export function App() {
           <h1 className="text-xl font-bold" style={{ fontFamily: 'Space Grotesk', color: phase.color }}>
             Autopha
           </h1>
-          <p className="text-xs opacity-40 text-white">Tu cuerpo como nunca lo habías visto</p>
+          <p className="text-xs text-white" style={{ opacity: 0.4 }}>
+            {userName ? `Hola, ${userName}` : 'Tu cuerpo como nunca lo habías visto'}
+          </p>
         </div>
         <div className="flex gap-2">
           <button
@@ -239,6 +249,8 @@ export function App() {
         gender={gender}
         onGenderChange={handleGenderChange}
         phase={phase}
+        userName={userName}
+        onUserNameChange={handleUserNameChange}
       />
     </div>
   )
