@@ -13,6 +13,7 @@ import { MilestoneCard } from './components/MilestoneCard'
 import { AchievementToast } from './components/AchievementToast'
 import { HistoryPanel } from './components/HistoryPanel'
 import { SettingsPanel } from './components/SettingsPanel'
+import { PhaseInfoCard } from './components/PhaseInfoCard'
 
 export function App() {
   const { isRunning, elapsedSeconds, fastingHours, phase, phaseProgress, goalHours, goalProgress, remainingSeconds, setGoalHours, startFast, stopFast } = useFasting()
@@ -152,8 +153,10 @@ export function App() {
             className="w-full"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
           >
             <PhaseTimeline currentPhase={phase} fastingHours={fastingHours} />
+            <PhaseInfoCard phase={phase} isRunning={isRunning} />
           </motion.div>
         )}
 
